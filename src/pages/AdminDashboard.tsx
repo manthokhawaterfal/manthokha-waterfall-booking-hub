@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "../components/Navbar";
@@ -16,7 +15,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("bookings");
-  const [dashboardTab, setDashboardTab] = useState("bookings"); // NEW: for better section control
+  const [dashboardTab, setDashboardTab] = useState("bookings");
 
   useEffect(() => {
     fetchBookings();
@@ -31,7 +30,7 @@ const AdminDashboard = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
+
       setBookings(data || []);
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -66,7 +65,6 @@ const AdminDashboard = () => {
               Refresh
             </Button>
           </div>
-          {/* Custom Dashboard Tabs */}
           <div className="mb-6 flex space-x-4 border-b pb-3">
             <Button 
               variant={dashboardTab === "bookings" ? "default" : "ghost"}
@@ -93,7 +91,6 @@ const AdminDashboard = () => {
               Contact Submissions
             </Button>
           </div>
-          {/* Dashboard Tab Content */}
           {dashboardTab === "bookings" && (
             <BookingManagement 
               bookings={bookings} 

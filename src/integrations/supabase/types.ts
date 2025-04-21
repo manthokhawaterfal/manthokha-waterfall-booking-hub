@@ -21,6 +21,7 @@ export type Database = {
           id: string
           phone: string | null
           room_id: string
+          status: string | null
         }
         Insert: {
           checkin_date: string
@@ -33,6 +34,7 @@ export type Database = {
           id?: string
           phone?: string | null
           room_id: string
+          status?: string | null
         }
         Update: {
           checkin_date?: string
@@ -45,6 +47,7 @@ export type Database = {
           id?: string
           phone?: string | null
           room_id?: string
+          status?: string | null
         }
         Relationships: []
       }
