@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -65,7 +64,7 @@ const HotelDetails = () => {
               </div>
               
               <div className="mt-6 lg:mt-0">
-                <Link to={`/hotel/${hotel.id}/rooms`}>
+                <Link to={`#rooms`}>
                   <Button className="bg-white text-waterfall-800 hover:bg-gray-100">
                     View Rooms & Rates
                   </Button>
@@ -162,7 +161,7 @@ const HotelDetails = () => {
               </div>
             </TabsContent>
             
-            <TabsContent value="rooms">
+            <TabsContent value="rooms" id="rooms">
               <h2 className="text-2xl font-bold mb-6">Available Rooms</h2>
               <div className="grid grid-cols-1 gap-6">
                 {hotel.rooms.map(room => (
