@@ -15,6 +15,7 @@ const HotelDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
+  const [activeTab, setActiveTab] = useState("overview");
   
   useEffect(() => {
     if (id) {
@@ -22,6 +23,18 @@ const HotelDetails = () => {
       if (foundHotel) {
         setHotel(foundHotel);
         setSelectedImage(foundHotel.images[0]);
+        
+        // Check if the URL contains "rooms" to automatically switch to rooms tab
+        if (window.location.pathname.includes("/rooms")) {
+          setActiveTab("rooms");
+          // Scroll to rooms section after a short delay
+          setTimeout(() => {
+            const roomsSection = document.getElementById("rooms");
+            if (roomsSection) {
+              roomsSection.scrollIntoView({ behavior: "smooth" });
+            }
+          }, 100);
+        }
       }
     }
   }, [id]);
@@ -65,11 +78,11 @@ const HotelDetails = () => {
               </div>
               
               <div className="mt-6 lg:mt-0">
-                <Link to="#rooms">
+                <a href="#rooms">
                   <Button className="bg-white text-waterfall-800 hover:bg-gray-100">
                     View Rooms & Rates
                   </Button>
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -106,7 +119,7 @@ const HotelDetails = () => {
           </div>
           
           {/* Hotel Details Tabs */}
-          <Tabs defaultValue="overview" className="w-full mb-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
             <TabsList className="border-b mb-6 pb-0">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="rooms">Rooms</TabsTrigger>
@@ -150,11 +163,11 @@ const HotelDetails = () => {
                       </ul>
                       
                       <div className="mt-6">
-                        <Link to="#rooms">
+                        <a href="#rooms">
                           <Button className="w-full bg-waterfall-600 hover:bg-waterfall-700 text-white">
                             View Rooms & Book
                           </Button>
-                        </Link>
+                        </a>
                       </div>
                     </CardContent>
                   </Card>

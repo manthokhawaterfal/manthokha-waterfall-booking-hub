@@ -51,7 +51,9 @@ const HeroSlideshow = () => {
 
   // Allow reloading images from window.heroSlides or similar
   useEffect(() => {
-    setSlides([...defaultSlides, ...getLocalImages()]);
+    const loadedImages = [...defaultSlides, ...getLocalImages()];
+    setSlides(loadedImages);
+    console.log("Loaded slideshow images:", loadedImages);
   }, []);
 
   useEffect(() => {
@@ -70,9 +72,11 @@ const HeroSlideshow = () => {
             <CarouselItem key={index} className="h-full">
               {/* Slide background image */}
               <div 
-                className="absolute inset-0 bg-cover bg-center z-0 transition-opacity duration-1000"
+                className="absolute inset-0 bg-cover bg-center z-0"
                 style={{ 
                   backgroundImage: `url('${slide.src}')`,
+                  opacity: currentSlide === index ? 1 : 0,
+                  transition: 'opacity 1s ease-in-out'
                 }}
               >
                 {/* Overlay */}
@@ -81,8 +85,14 @@ const HeroSlideshow = () => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="absolute left-4 z-20 bg-black/30 hover:bg-black/60 text-white h-10 w-10" />
-        <CarouselNext className="absolute right-4 z-20 bg-black/30 hover:bg-black/60 text-white h-10 w-10" />
+        <CarouselPrevious 
+          className="absolute left-4 z-20 bg-black/30 hover:bg-black/60 text-white h-10 w-10" 
+          onClick={() => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
+        />
+        <CarouselNext 
+          className="absolute right-4 z-20 bg-black/30 hover:bg-black/60 text-white h-10 w-10"
+          onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+        />
       </Carousel>
 
       {/* Content - overlaid on top of the carousel */}
