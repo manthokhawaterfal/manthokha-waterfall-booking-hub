@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "../components/Navbar";
@@ -74,6 +75,12 @@ const AdminDashboard = () => {
               Booking Management
             </Button>
             <Button 
+              variant={dashboardTab === "hotels" ? "default" : "ghost"}
+              onClick={() => setDashboardTab("hotels")}
+            >
+              Hotels Management
+            </Button>
+            <Button 
               variant={dashboardTab === "rooms" ? "default" : "ghost"}
               onClick={() => setDashboardTab("rooms")}
             >
@@ -85,12 +92,6 @@ const AdminDashboard = () => {
             >
               Contact Submissions
             </Button>
-            <Button 
-              variant={dashboardTab === "settings" ? "default" : "ghost"}
-              onClick={() => setDashboardTab("settings")}
-            >
-              Settings
-            </Button>
           </div>
           {/* Dashboard Tab Content */}
           {dashboardTab === "bookings" && (
@@ -100,17 +101,14 @@ const AdminDashboard = () => {
               onBookingUpdated={fetchBookings} 
             />
           )}
+          {dashboardTab === "hotels" && (
+            <AdminHotelsManagement />
+          )}
           {dashboardTab === "rooms" && (
             <AdminRoomsManagement />
           )}
           {dashboardTab === "contact" && (
             <AdminContactSubmissions />
-          )}
-          {dashboardTab === "settings" && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold mb-4">Settings</h2>
-              <p className="text-gray-500">Admin settings will be available in future updates.</p>
-            </div>
           )}
         </div>
       </div>
