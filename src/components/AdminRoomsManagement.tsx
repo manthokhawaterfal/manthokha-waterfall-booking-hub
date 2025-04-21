@@ -5,8 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 
-const AdminRoomsManagement = () => {
+interface AdminRoomsManagementProps {
+  hotelId?: string;
+  hotelName?: string;
+  hotels?: any[];
+}
+
+const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, hotelName, hotels: propHotels }) => {
+  const { toast } = useToast();
   const [rooms, setRooms] = useState<any[]>([]);
   const [hotels, setHotels] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,16 +22,53 @@ const AdminRoomsManagement = () => {
   const [assignHotelId, setAssignHotelId] = useState<string>("");
 
   useEffect(() => {
-    fetchRooms();
-    fetchHotels();
-  }, []);
+    if (hotelId) {
+      fetchRoomsForHotel(hotelId);
+    } else {
+      fetchRooms();
+    }
+    
+    if (propHotels) {
+      setHotels(propHotels);
+    } else {
+      fetchHotels();
+    }
+  }, [hotelId, propHotels]);
 
   const fetchRooms = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("rooms")
       .select("*");
-    if (!error) setRooms(data || []);
+    
+    if (error) {
+      toast({
+        title: "Error fetching rooms",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setRooms(data || []);
+    }
+    setLoading(false);
+  };
+
+  const fetchRoomsForHotel = async (hotel_id: string) => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("rooms")
+      .select("*")
+      .eq("hotel_id", hotel_id);
+    
+    if (error) {
+      toast({
+        title: "Error fetching rooms",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setRooms(data || []);
+    }
     setLoading(false);
   };
 
@@ -31,26 +76,70 @@ const AdminRoomsManagement = () => {
     const { data, error } = await supabase
       .from("hotels")
       .select("id, name");
-    if (!error) setHotels(data || []);
+    
+    if (error) {
+      toast({
+        title: "Error fetching hotels",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setHotels(data || []);
+    }
   };
 
   const handleAssignRoom = async (roomId: string, hotelId: string) => {
-    if (!hotelId) return;
-    await supabase
+    if (!hotelId) {
+      toast({
+        title: "No hotel selected",
+        description: "Please select a hotel to assign the room to.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const { error } = await supabase
       .from("rooms")
       .update({ hotel_id: hotelId })
       .eq("id", roomId);
+    
+    if (error) {
+      toast({
+        title: "Error assigning room",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Room assigned",
+        description: "Room has been successfully assigned to the hotel.",
+      });
+      
+      if (hotelId) {
+        fetchRoomsForHotel(hotelId);
+      } else {
+        fetchRooms();
+      }
+    }
+    
     setAssigningRoomId(null);
     setAssignHotelId("");
-    fetchRooms();
   };
 
   return (
     <Card>
       <CardContent className="p-6">
-        <h2 className="text-xl font-bold mb-4">Rooms Management (Assign To Hotels)</h2>
+        <h2 className="text-xl font-bold mb-4">
+          {hotelName ? `Rooms for: ${hotelName}` : "Rooms Management"}
+        </h2>
         {loading ? (
-          <div>Loading rooms...</div>
+          <div className="flex justify-center items-center py-10">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-waterfall-600"></div>
+          </div>
+        ) : rooms.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            {hotelId ? "No rooms found for this hotel." : "No rooms found."}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <Table>
