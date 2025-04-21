@@ -16,7 +16,7 @@ interface SlideImage {
   alt: string;
 }
 
-// Default slideshow images - these can be updated by the admin
+// Prepare slideshow images with both defaults and images from public/ folder provided as window.heroSlides for demo
 const defaultSlides: SlideImage[] = [
   {
     src: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=1920&q=80",
@@ -32,19 +32,35 @@ const defaultSlides: SlideImage[] = [
   }
 ];
 
+// Helper to detect local images in 'public/' folder by a convention (starting with "/" or via a global)
+const getLocalImages = (): SlideImage[] => {
+  // If using static import (preferred)
+  const localImgArr: SlideImage[] = [];
+  // You can add e.g. "/my-waterfall-1.jpg" below, or update window.heroSlides = [{src, alt}, ...] in your app for dynamic demo
+  if (window && (window as any).heroSlides) {
+    return (window as any).heroSlides;
+  }
+  // fallback demo example:
+  // localImgArr.push({ src: "/header-local.jpg", alt: "Your uploaded header image" });
+  return localImgArr;
+};
+
 const HeroSlideshow = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [slides, setSlides] = useState<SlideImage[]>(defaultSlides);
-  
-  // Auto-rotate slides every 5 seconds
+  const [slides, setSlides] = useState<SlideImage[]>([...defaultSlides, ...getLocalImages()]);
+
+  // Allow reloading images from window.heroSlides or similar
+  useEffect(() => {
+    setSlides([...defaultSlides, ...getLocalImages()]);
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
-    
     return () => clearInterval(interval);
   }, [slides.length]);
-  
+
   return (
     <div className="relative h-screen overflow-hidden">
       {/* Carousel for the slideshow */}
@@ -65,8 +81,6 @@ const HeroSlideshow = () => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        
-        {/* Navigation arrows */}
         <CarouselPrevious className="absolute left-4 z-20 bg-black/30 hover:bg-black/60 text-white h-10 w-10" />
         <CarouselNext className="absolute right-4 z-20 bg-black/30 hover:bg-black/60 text-white h-10 w-10" />
       </Carousel>
@@ -91,7 +105,6 @@ const HeroSlideshow = () => {
             </Button>
           </Link>
         </div>
-        
         {/* Water animation */}
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-waterfall-500/20 animate-water-flow z-1"></div>
       </div>

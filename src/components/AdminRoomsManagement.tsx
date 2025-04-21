@@ -20,85 +20,77 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { hotels as initialHotels } from "../data/hotels";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface Room {
-  id: number;
+  id: string;
+  hotel_id: string;
   name: string;
   description: string;
   price: number;
   capacity: number;
-  beds: number;
-  bathrooms: number;
-  size: number;
-  amenities: string[];
   images: string[];
+  features: string[];
+  created_at?: string;
+  beds?: number;
+  bathrooms?: number;
+  size?: number;
+  amenities?: string[];
+}
+
+interface Hotel {
+  id: string;
+  name: string;
 }
 
 interface AdminRoomsManagementProps {
-  hotelId: number | string;
+  hotelId: string;
   hotelName: string;
+  hotels: Hotel[];
 }
 
-const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, hotelName }) => {
+const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, hotelName, hotels }) => {
   const { toast } = useToast();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  
+
   // Form state
   const [formData, setFormData] = useState({
+    hotel_id: hotelId,
     name: "",
     description: "",
     price: 0,
     capacity: 1,
-    beds: 1,
-    bathrooms: 1,
-    size: 0,
-    amenities: [] as string[],
-    images: [] as string[]
+    images: [] as string[],
+    features: [] as string[],
   });
-  
+
   // Temporary state for input fields
   const [newImage, setNewImage] = useState("");
-  const [newAmenity, setNewAmenity] = useState("");
-  
+  const [newFeature, setNewFeature] = useState("");
+
   useEffect(() => {
     fetchRooms();
+    setFormData(prev => ({
+      ...prev,
+      hotel_id: hotelId,
+    }));
   }, [hotelId]);
-  
+
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      
-      // First check if we have the hotel data in our initial hotels data
-      const hotel = initialHotels.find(h => h.id === hotelId);
-      if (hotel) {
-        setRooms(hotel.rooms);
-      } else {
-        // If not found in initial data, try fetching from Supabase
-        // Since there's no rooms table yet in Supabase, we'll use empty array
-        // In the future, uncomment this code when the table exists
-        /*
-        const { data, error } = await supabase
-          .from('rooms')
-          .select('*')
-          .eq('hotel_id', hotelId);
-        
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          setRooms(data);
-        } else {
-          setRooms([]);
-        }
-        */
-        setRooms([]);
-      }
+      const { data, error } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('hotel_id', hotelId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setRooms(data || []);
     } catch (error) {
       console.error("Error fetching rooms:", error);
       toast({
@@ -106,27 +98,28 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
         description: "Could not load room data.",
         variant: "destructive",
       });
+      setRooms([]);
     } finally {
       setLoading(false);
     }
   };
-  
+
   const filteredRooms = rooms.filter(room =>
     room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    room.description.toLowerCase().includes(searchQuery.toLowerCase())
+    room.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: name === "price" || name === "capacity" || name === "beds" || 
-              name === "bathrooms" || name === "size" 
-                ? Number(value) 
-                : value 
+    setFormData(prev => ({
+      ...prev,
+      [name]:
+        name === "price" || name === "capacity"
+          ? Number(value)
+          : value
     }));
   };
-  
+
   const handleAddImage = () => {
     if (newImage.trim()) {
       setFormData(prev => ({
@@ -136,107 +129,103 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
       setNewImage("");
     }
   };
-  
+
   const handleRemoveImage = (index: number) => {
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
     }));
   };
-  
-  const handleAddAmenity = () => {
-    if (newAmenity.trim()) {
+
+  const handleAddFeature = () => {
+    if (newFeature.trim()) {
       setFormData(prev => ({
         ...prev,
-        amenities: [...prev.amenities, newAmenity.trim()]
+        features: [...prev.features, newFeature.trim()]
       }));
-      setNewAmenity("");
+      setNewFeature("");
     }
   };
-  
-  const handleRemoveAmenity = (index: number) => {
+
+  const handleRemoveFeature = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      amenities: prev.amenities.filter((_, i) => i !== index)
+      features: prev.features.filter((_, i) => i !== index)
     }));
   };
-  
+
   const handleEditRoom = (room: Room) => {
     setSelectedRoom(room);
     setFormData({
+      hotel_id: room.hotel_id,
       name: room.name,
-      description: room.description,
-      price: room.price,
-      capacity: room.capacity,
-      beds: room.beds,
-      bathrooms: room.bathrooms,
-      size: room.size,
-      amenities: [...room.amenities],
-      images: [...room.images]
+      description: room.description || "",
+      price: Number(room.price),
+      capacity: Number(room.capacity),
+      images: [...(room.images || [])],
+      features: [...(room.features || [])],
     });
     setIsEditing(true);
   };
-  
+
   const handleNewRoom = () => {
     setSelectedRoom(null);
     setFormData({
+      hotel_id: hotelId,
       name: "",
       description: "",
       price: 10000,
       capacity: 2,
-      beds: 1,
-      bathrooms: 1,
-      size: 300,
-      amenities: [],
-      images: []
+      images: [],
+      features: [],
     });
     setIsEditing(true);
   };
-  
+
   const handleSaveRoom = async () => {
     try {
-      // Basic validation
-      if (!formData.name || !formData.description || formData.price <= 0) {
+      if (!formData.name || !formData.description || formData.price <= 0 || !formData.hotel_id) {
         toast({
           title: "Missing Fields",
-          description: "Please fill all required fields",
+          description: "Please fill all required fields and select a hotel.",
           variant: "destructive",
         });
         return;
       }
-      
       if (selectedRoom) {
-        // Update existing room
-        const updatedRoom = {
-          ...selectedRoom,
-          ...formData
-        };
-        
-        // For now, just update local state
-        setRooms(prev => 
-          prev.map(r => r.id === selectedRoom.id ? updatedRoom : r)
-        );
-        
+        const { error } = await supabase
+          .from('rooms')
+          .update({
+            ...formData,
+            price: Number(formData.price),
+            capacity: Number(formData.capacity),
+            images: formData.images,
+            features: formData.features,
+          })
+          .eq('id', selectedRoom.id);
+        if (error) throw error;
         toast({
           title: "Room Updated",
           description: `Room "${formData.name}" has been updated successfully.`,
         });
       } else {
-        // Create new room
-        const newRoom = {
-          id: Date.now(), // Simple ID for now
-          ...formData
-        };
-        
-        setRooms(prev => [...prev, newRoom]);
-        
+        const { error } = await supabase
+          .from('rooms')
+          .insert([{
+            ...formData,
+            price: Number(formData.price),
+            capacity: Number(formData.capacity),
+            images: formData.images,
+            features: formData.features,
+          }]);
+        if (error) throw error;
         toast({
           title: "Room Created",
           description: `Room "${formData.name}" has been created successfully.`,
         });
       }
-      
       setIsEditing(false);
+      fetchRooms();
     } catch (error) {
       console.error("Error saving room:", error);
       toast({
@@ -246,18 +235,20 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
       });
     }
   };
-  
-  const handleDeleteRoom = async (id: number) => {
+
+  const handleDeleteRoom = async (id: string) => {
     if (!confirm("Are you sure you want to delete this room? This cannot be undone.")) return;
-    
     try {
-      // For now, just remove from local state
-      setRooms(prev => prev.filter(r => r.id !== id));
-      
+      const { error } = await supabase
+        .from('rooms')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
       toast({
         title: "Room Deleted",
         description: "The room has been deleted successfully.",
       });
+      fetchRooms();
     } catch (error) {
       console.error("Error deleting room:", error);
       toast({
@@ -267,7 +258,7 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
       });
     }
   };
-  
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
@@ -288,104 +279,71 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
                   {selectedRoom ? `Edit Room: ${selectedRoom.name}` : "Add New Room"}
                 </DialogTitle>
               </DialogHeader>
-              
               <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <label htmlFor="hotel_id" className="font-medium">Hotel*</label>
+                  <select
+                    id="hotel_id"
+                    name="hotel_id"
+                    value={formData.hotel_id}
+                    onChange={handleChange}
+                    className="border rounded px-3 py-2"
+                  >
+                    {hotels.map(hotel => (
+                      <option value={hotel.id} key={hotel.id}>
+                        {hotel.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="grid gap-2">
                   <label htmlFor="name" className="font-medium">Room Name*</label>
                   <Input 
-                    id="name" 
+                    id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    required
                   />
                 </div>
-                
                 <div className="grid gap-2">
                   <label htmlFor="description" className="font-medium">Description*</label>
-                  <Textarea 
-                    id="description" 
+                  <Textarea
+                    id="description"
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
-                    required
                     rows={3}
                   />
                 </div>
-                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <label htmlFor="price" className="font-medium">Price (PKR)*</label>
-                    <Input 
-                      id="price" 
+                    <Input
+                      id="price"
                       name="price"
                       type="number"
                       min="0"
                       value={formData.price}
                       onChange={handleChange}
-                      required
                     />
                   </div>
-                  
                   <div className="grid gap-2">
                     <label htmlFor="capacity" className="font-medium">Capacity (Guests)*</label>
-                    <Input 
-                      id="capacity" 
+                    <Input
+                      id="capacity"
                       name="capacity"
                       type="number"
                       min="1"
                       value={formData.capacity}
                       onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <label htmlFor="beds" className="font-medium">Beds*</label>
-                    <Input 
-                      id="beds" 
-                      name="beds"
-                      type="number"
-                      min="1"
-                      value={formData.beds}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <label htmlFor="bathrooms" className="font-medium">Bathrooms*</label>
-                    <Input 
-                      id="bathrooms" 
-                      name="bathrooms"
-                      type="number"
-                      min="1"
-                      step="0.5"
-                      value={formData.bathrooms}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <label htmlFor="size" className="font-medium">Size (sq ft)*</label>
-                    <Input 
-                      id="size" 
-                      name="size"
-                      type="number"
-                      min="0"
-                      value={formData.size}
-                      onChange={handleChange}
-                      required
                     />
                   </div>
                 </div>
-                
                 <div className="grid gap-2">
                   <label className="font-medium">Images</label>
                   <div className="flex space-x-2">
-                    <Input 
-                      placeholder="Enter image URL" 
+                    <Input
+                      placeholder="Enter image URL"
                       value={newImage}
                       onChange={e => setNewImage(e.target.value)}
                     />
@@ -396,7 +354,7 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
                       <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
                         <div className="flex items-center">
                           <img 
-                            src={image} 
+                            src={image.startsWith("http") ? image : image.startsWith("/") ? image : "/" + image} 
                             alt={`Preview ${index}`} 
                             className="h-10 w-10 object-cover rounded-sm mr-2"
                             onError={(e) => {
@@ -405,9 +363,9 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
                           />
                           <span className="text-sm truncate max-w-[200px]">{image}</span>
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleRemoveImage(index)}
                           className="text-red-500"
                         >
@@ -417,25 +375,24 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
                     ))}
                   </div>
                 </div>
-                
                 <div className="grid gap-2">
-                  <label className="font-medium">Amenities</label>
+                  <label className="font-medium">Features</label>
                   <div className="flex space-x-2">
-                    <Input 
-                      placeholder="Enter room amenity" 
-                      value={newAmenity}
-                      onChange={e => setNewAmenity(e.target.value)}
+                    <Input
+                      placeholder="Enter room feature"
+                      value={newFeature}
+                      onChange={e => setNewFeature(e.target.value)}
                     />
-                    <Button onClick={handleAddAmenity} className="shrink-0">Add</Button>
+                    <Button onClick={handleAddFeature} className="shrink-0">Add</Button>
                   </div>
-                  <div className="grid grid-cols-2 gap-1 mt-2">
-                    {formData.amenities.map((amenity, index) => (
+                  <div className="grid grid-cols-1 gap-1 mt-2">
+                    {formData.features.map((feature, index) => (
                       <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
-                        <span className="text-sm">{amenity}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleRemoveAmenity(index)}
+                        <span className="text-sm">{feature}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveFeature(index)}
                           className="text-red-500"
                         >
                           Remove
@@ -445,7 +402,6 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
                   </div>
                 </div>
               </div>
-              
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancel
@@ -456,8 +412,7 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          
-          <Button 
+          <Button
             onClick={handleNewRoom}
             className="bg-waterfall-600 hover:bg-waterfall-700 flex items-center"
           >
@@ -465,7 +420,7 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
           </Button>
         </div>
       </div>
-      
+
       {loading ? (
         <div className="flex justify-center items-center py-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-waterfall-600"></div>
@@ -478,7 +433,6 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
                 <TableHead>Room Name</TableHead>
                 <TableHead>Price (PKR)</TableHead>
                 <TableHead>Capacity</TableHead>
-                <TableHead>Size</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -486,9 +440,8 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
               {filteredRooms.map((room) => (
                 <TableRow key={room.id}>
                   <TableCell className="font-medium">{room.name}</TableCell>
-                  <TableCell>{room.price.toLocaleString()}</TableCell>
+                  <TableCell>{room.price && Number(room.price).toLocaleString()}</TableCell>
                   <TableCell>{room.capacity} guests</TableCell>
-                  <TableCell>{room.size} sq ft</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button
@@ -516,7 +469,7 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
       ) : (
         <Card className="p-6 text-center">
           <p className="text-gray-500 mb-4">No rooms found for this hotel</p>
-          <Button 
+          <Button
             onClick={handleNewRoom}
             className="bg-waterfall-600 hover:bg-waterfall-700"
           >
