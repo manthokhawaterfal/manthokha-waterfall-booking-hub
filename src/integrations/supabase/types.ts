@@ -48,6 +48,33 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          email: string
+          id: string
+          message: string
+          name: string
+          subject: string | null
+          submitted_at: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          message: string
+          name: string
+          subject?: string | null
+          submitted_at?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          subject?: string | null
+          submitted_at?: string | null
+        }
+        Relationships: []
+      }
       hotels: {
         Row: {
           created_at: string | null

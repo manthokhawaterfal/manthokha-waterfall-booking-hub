@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -9,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const [name, setName] = useState("");
@@ -16,10 +16,31 @@ const Contact = () => {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const { toast } = useToast();
-  
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name && email && message) {
+      setSubmitting(true);
+      const { error } = await supabase
+        .from("contact_submissions")
+        .insert([
+          {
+            name,
+            email,
+            subject: subject || null,
+            message,
+          },
+        ]);
+      setSubmitting(false);
+      if (error) {
+        toast({
+          title: "Submission Failed",
+          description: "An error occurred while sending your message. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
       toast({
         title: "Message Sent!",
         description: "We've received your message and will get back to you soon.",
@@ -36,7 +57,7 @@ const Contact = () => {
       });
     }
   };
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -193,8 +214,9 @@ const Contact = () => {
                   <Button 
                     type="submit" 
                     className="w-full bg-waterfall-600 hover:bg-waterfall-700 text-white py-6"
+                    disabled={submitting}
                   >
-                    Send Message
+                    {submitting ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </CardContent>

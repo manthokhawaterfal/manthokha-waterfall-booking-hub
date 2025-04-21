@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "../components/Navbar";
@@ -8,12 +7,15 @@ import { useToast } from "@/hooks/use-toast";
 import BookingManagement from "@/components/AdminBookingManagement";
 import AdminTabs from "@/components/AdminTabs";
 import AdminHotelsManagement from "@/components/AdminHotelsManagement";
+import AdminContactSubmissions from "../components/AdminContactSubmissions";
+import AdminRoomsManagement from "../components/AdminRoomsManagement";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("bookings");
+  const [dashboardTab, setDashboardTab] = useState("bookings"); // NEW: for better section control
 
   useEffect(() => {
     fetchBookings();
@@ -63,22 +65,48 @@ const AdminDashboard = () => {
               Refresh
             </Button>
           </div>
-
-          <AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-          {activeTab === "bookings" && (
+          {/* Custom Dashboard Tabs */}
+          <div className="mb-6 flex space-x-4 border-b pb-3">
+            <Button 
+              variant={dashboardTab === "bookings" ? "default" : "ghost"}
+              onClick={() => setDashboardTab("bookings")}
+            >
+              Booking Management
+            </Button>
+            <Button 
+              variant={dashboardTab === "rooms" ? "default" : "ghost"}
+              onClick={() => setDashboardTab("rooms")}
+            >
+              Rooms Management
+            </Button>
+            <Button 
+              variant={dashboardTab === "contact" ? "default" : "ghost"}
+              onClick={() => setDashboardTab("contact")}
+            >
+              Contact Submissions
+            </Button>
+            <Button 
+              variant={dashboardTab === "settings" ? "default" : "ghost"}
+              onClick={() => setDashboardTab("settings")}
+            >
+              Settings
+            </Button>
+          </div>
+          {/* Dashboard Tab Content */}
+          {dashboardTab === "bookings" && (
             <BookingManagement 
               bookings={bookings} 
               loading={loading} 
               onBookingUpdated={fetchBookings} 
             />
           )}
-          
-          {activeTab === "hotels" && (
-            <AdminHotelsManagement />
+          {dashboardTab === "rooms" && (
+            <AdminRoomsManagement />
           )}
-          
-          {activeTab === "settings" && (
+          {dashboardTab === "contact" && (
+            <AdminContactSubmissions />
+          )}
+          {dashboardTab === "settings" && (
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold mb-4">Settings</h2>
               <p className="text-gray-500">Admin settings will be available in future updates.</p>
