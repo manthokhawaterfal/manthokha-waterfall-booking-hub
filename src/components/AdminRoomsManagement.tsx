@@ -81,6 +81,9 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
         setRooms(hotel.rooms);
       } else {
         // If not found in initial data, try fetching from Supabase
+        // Since there's no rooms table yet in Supabase, we'll use empty array
+        // In the future, uncomment this code when the table exists
+        /*
         const { data, error } = await supabase
           .from('rooms')
           .select('*')
@@ -93,6 +96,8 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
         } else {
           setRooms([]);
         }
+        */
+        setRooms([]);
       }
     } catch (error) {
       console.error("Error fetching rooms:", error);
@@ -276,8 +281,8 @@ const AdminRoomsManagement: React.FC<AdminRoomsManagementProps> = ({ hotelId, ho
               className="w-full"
             />
           </div>
-          <Dialog>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" open={isEditing}>
+          <Dialog open={isEditing} onOpenChange={setIsEditing}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {selectedRoom ? `Edit Room: ${selectedRoom.name}` : "Add New Room"}

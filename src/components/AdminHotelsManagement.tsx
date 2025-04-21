@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -68,7 +69,9 @@ const AdminHotelsManagement = () => {
     try {
       setLoading(true);
       
-      // First, check if we have hotels in Supabase
+      // Since there's no hotels table yet in Supabase, use the initial data
+      // In the future, when hotels table exists, uncomment this code:
+      /*
       const { data, error } = await supabase
         .from('hotels')
         .select('*');
@@ -84,6 +87,10 @@ const AdminHotelsManagement = () => {
         // Otherwise, use initial data
         setHotels(initialHotels);
       }
+      */
+      
+      // For now, use initial data
+      setHotels(initialHotels);
     } catch (error) {
       console.error("Error fetching hotels:", error);
       toast({
