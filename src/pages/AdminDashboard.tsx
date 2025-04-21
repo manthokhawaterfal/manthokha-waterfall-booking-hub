@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import BookingManagement from "@/components/AdminBookingManagement";
 import AdminTabs from "@/components/AdminTabs";
+import AdminHotelsManagement from "@/components/AdminHotelsManagement";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -71,6 +72,10 @@ const AdminDashboard = () => {
               loading={loading} 
               onBookingUpdated={fetchBookings} 
             />
+          )}
+          
+          {activeTab === "hotels" && (
+            <AdminHotelsManagement />
           )}
           
           {activeTab === "settings" && (

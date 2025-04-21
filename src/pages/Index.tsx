@@ -2,7 +2,7 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import Hero from "../components/Hero";
+import HeroSlideshow from "../components/HeroSlideshow";
 import FeaturedHotels from "../components/FeaturedHotels";
 import AboutWaterfall from "../components/AboutWaterfall";
 import BookingInfo from "../components/BookingInfo";
@@ -14,7 +14,7 @@ const Index = () => {
     <div className="min-h-screen">
       <Navbar />
       <main>
-        <Hero />
+        <HeroSlideshow />
         <BookingInfo />
         <AboutWaterfall />
         <FeaturedHotels />

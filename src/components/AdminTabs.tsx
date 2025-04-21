@@ -23,6 +23,17 @@ const AdminTabs: React.FC<AdminTabsProps> = ({ activeTab, setActiveTab }) => {
           Booking Management
         </Button>
         <Button
+          variant={activeTab === "hotels" ? "default" : "ghost"}
+          className={`rounded-none border-b-2 ${
+            activeTab === "hotels" 
+              ? "border-waterfall-600 bg-transparent text-waterfall-800 hover:bg-gray-50" 
+              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+          }`}
+          onClick={() => setActiveTab("hotels")}
+        >
+          Hotels & Rooms
+        </Button>
+        <Button
           variant={activeTab === "settings" ? "default" : "ghost"}
           className={`rounded-none border-b-2 ${
             activeTab === "settings" 
