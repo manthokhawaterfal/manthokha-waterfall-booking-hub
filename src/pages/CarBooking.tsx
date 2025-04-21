@@ -25,14 +25,55 @@ const CarBooking = () => {
         <div className="container mx-auto px-4 relative z-10 pt-16 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Car Booking Services</h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto">
-            Coming soon to ensure convenient transportation around Manthokha Waterfall
+            Discover the beauty of Manthokha Waterfall with our reliable car services
           </p>
         </div>
       </div>
       
-      {/* Main Content */}
+      {/* Mountain Rides Promo Section */}
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-waterfall-600/10 to-waterfall-700/10 rounded-lg shadow-md p-6 mb-12">
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="md:w-1/3 flex justify-center items-center">
+                <div className="rounded-full bg-waterfall-100 p-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-car-front text-waterfall-700">
+                    <path d="M5.04 11.83l1.46-6.2A1 1 0 0 1 7.48 5h9.04a1 1 0 0 1 .98.63l1.46 6.2"/>
+                    <path d="M4 11h16a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z"/>
+                    <path d="M6 18h4"/>
+                    <path d="M14 18h4"/>
+                    <path d="M8 14v1"/>
+                    <path d="M16 14v1"/>
+                  </svg>
+                </div>
+              </div>
+              <div className="md:w-2/3">
+                <div className="flex items-center gap-2 mb-2">
+                  <h2 className="text-3xl font-bold text-waterfall-800">Mountain Rides</h2>
+                  <span className="bg-waterfall-100 text-waterfall-800 text-xs px-2 py-1 rounded-full font-medium">Recommended</span>
+                </div>
+                <p className="text-gray-700 mb-6">
+                  Mountain Rides was founded with a passion for showcasing the breathtaking beauty of Gilgit Baltistan to travelers from around the world. We started our journey with a vision to provide tourists with comfortable, reliable, and luxurious transportation that could navigate the challenging yet beautiful terrains of Northern Pakistan.
+                </p>
+                <p className="text-gray-700 mb-6">
+                  Our commitment to excellence and deep roots in the region make us the perfect partner for your Gilgit Baltistan adventure.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <a href="https://mountainride.vercel.app/" target="_blank" rel="noopener noreferrer">
+                    <Button className="bg-waterfall-600 hover:bg-waterfall-700 text-white">
+                      Visit Mountain Rides
+                    </Button>
+                  </a>
+                  <a href="tel:+923456789012">
+                    <Button variant="outline">
+                      Call to Book: +92 345 678 9012
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div className="mb-8">
             <h2 className="text-3xl font-bold mb-4">Our Car Booking Service is Under Development</h2>
             <p className="text-gray-600 mb-6">
@@ -104,7 +145,7 @@ const CarBooking = () => {
               
               <div>
                 <p className="text-gray-600 mb-6">
-                  In the meantime, you can arrange transportation through your hotel's concierge or contact us directly for assistance.
+                  In the meantime, you can arrange transportation through our partner Mountain Rides or contact us directly for assistance.
                 </p>
                 
                 <Button className="bg-waterfall-600 hover:bg-waterfall-700 text-white">
