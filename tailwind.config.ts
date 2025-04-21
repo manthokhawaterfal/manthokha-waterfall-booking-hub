@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,42 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				waterfall: {
+					50: '#f0f9ff',
+					100: '#e0f2fe',
+					200: '#bae6fd',
+					300: '#7dd3fc',
+					400: '#38bdf8',
+					500: '#0ea5e9',
+					600: '#0284c7',
+					700: '#0369a1',
+					800: '#075985',
+					900: '#0c4a6e',
+				},
+				forest: {
+					50: '#f0fdf4',
+					100: '#dcfce7',
+					200: '#bbf7d0',
+					300: '#86efac',
+					400: '#4ade80',
+					500: '#22c55e',
+					600: '#16a34a',
+					700: '#15803d',
+					800: '#166534',
+					900: '#14532d',
+				},
+				mountain: {
+					50: '#fafaf9',
+					100: '#f5f5f4',
+					200: '#e7e5e4',
+					300: '#d6d3d1',
+					400: '#a8a29e',
+					500: '#78716c',
+					600: '#57534e',
+					700: '#44403c',
+					800: '#292524',
+					900: '#1c1917',
 				}
 			},
 			borderRadius: {
@@ -84,11 +121,20 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'water-flow': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'water-flow': 'water-flow 3s ease-in-out infinite'
+			},
+			backgroundImage: {
+				'waterfall-pattern': 'linear-gradient(to bottom, rgba(12, 74, 110, 0.8), rgba(12, 74, 110, 0.4)), url("/images/waterfall-bg.jpg")',
+				'mountain-pattern': 'linear-gradient(to bottom, rgba(28, 25, 23, 0.7), rgba(28, 25, 23, 0.3))',
 			}
 		}
 	},
