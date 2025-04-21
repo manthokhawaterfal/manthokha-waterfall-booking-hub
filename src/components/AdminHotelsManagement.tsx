@@ -174,26 +174,32 @@ const AdminHotelsManagement = () => {
         return;
       }
       
+      // Properly structure the hotel data and ensure all fields are present
       const hotelData = {
-        ...formData,
-        rating: Number(formData.rating),
-        images: formData.images || [],
-        features: formData.features || []
+        name: formData.name,
+        description: formData.description,
+        location: formData.location,
+        rating: Number(formData.rating) || 4.5,
+        images: Array.isArray(formData.images) ? formData.images : [],
+        features: Array.isArray(formData.features) ? formData.features : [],
+        overview: formData.overview || ""
       };
       
-      console.log("Saving hotel data:", hotelData);
+      console.log("Preparing to save hotel data:", hotelData);
       
       if (selectedHotel) {
         // Update existing hotel in Supabase
         const { data, error } = await supabase
           .from('hotels')
           .update(hotelData)
-          .eq('id', selectedHotel.id)
-          .select();
+          .eq('id', selectedHotel.id);
           
         console.log("Update response:", { data, error });
           
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase update error details:", error);
+          throw error;
+        }
         
         toast({
           title: "Hotel Updated",
@@ -203,12 +209,14 @@ const AdminHotelsManagement = () => {
         // Insert new hotel
         const { data, error } = await supabase
           .from('hotels')
-          .insert([hotelData])
-          .select();
+          .insert([hotelData]);
           
         console.log("Insert response:", { data, error });
           
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase insert error details:", error);
+          throw error;
+        }
         
         toast({
           title: "Hotel Created",
@@ -219,7 +227,7 @@ const AdminHotelsManagement = () => {
       setIsEditing(false);
       fetchHotels();
     } catch (error: any) {
-      console.error("Error saving hotel:", error);
+      console.error("Detailed error saving hotel:", error);
       toast({
         title: "Error Saving Hotel",
         description: error.message || "Could not save hotel data. Please try again.",
