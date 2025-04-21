@@ -45,6 +45,7 @@ const AdminHotelsManagement = () => {
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showRooms, setShowRooms] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -161,55 +162,71 @@ const AdminHotelsManagement = () => {
 
   const handleSaveHotel = async () => {
     try {
+      setSaveLoading(true);
+      
       if (!formData.name || !formData.description || !formData.location) {
         toast({
           title: "Missing Fields",
           description: "Please fill all required fields",
           variant: "destructive",
         });
+        setSaveLoading(false);
         return;
       }
+      
+      const hotelData = {
+        ...formData,
+        rating: Number(formData.rating),
+        images: formData.images || [],
+        features: formData.features || []
+      };
+      
+      console.log("Saving hotel data:", hotelData);
+      
       if (selectedHotel) {
         // Update existing hotel in Supabase
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('hotels')
-          .update({
-            ...formData,
-            rating: Number(formData.rating),
-            images: formData.images,
-            features: formData.features,
-          })
-          .eq('id', selectedHotel.id);
+          .update(hotelData)
+          .eq('id', selectedHotel.id)
+          .select();
+          
+        console.log("Update response:", { data, error });
+          
         if (error) throw error;
+        
         toast({
           title: "Hotel Updated",
           description: `Hotel "${formData.name}" has been updated successfully.`,
         });
       } else {
         // Insert new hotel
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('hotels')
-          .insert([{
-            ...formData,
-            rating: Number(formData.rating),
-            images: formData.images,
-            features: formData.features,
-          }]);
+          .insert([hotelData])
+          .select();
+          
+        console.log("Insert response:", { data, error });
+          
         if (error) throw error;
+        
         toast({
           title: "Hotel Created",
           description: `Hotel "${formData.name}" has been created successfully.`,
         });
       }
+      
       setIsEditing(false);
       fetchHotels();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving hotel:", error);
       toast({
         title: "Error Saving Hotel",
-        description: "Could not save hotel data. Please try again.",
+        description: error.message || "Could not save hotel data. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setSaveLoading(false);
     }
   };
 
@@ -408,8 +425,11 @@ const AdminHotelsManagement = () => {
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleSaveHotel}>
-                  Save
+                <Button 
+                  onClick={handleSaveHotel} 
+                  disabled={saveLoading}
+                >
+                  {saveLoading ? "Saving..." : "Save"}
                 </Button>
               </DialogFooter>
             </DialogContent>
