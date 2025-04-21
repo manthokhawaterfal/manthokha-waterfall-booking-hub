@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -64,7 +65,7 @@ const HotelDetails = () => {
               </div>
               
               <div className="mt-6 lg:mt-0">
-                <Link to={`#rooms`}>
+                <Link to="#rooms">
                   <Button className="bg-white text-waterfall-800 hover:bg-gray-100">
                     View Rooms & Rates
                   </Button>
@@ -149,7 +150,7 @@ const HotelDetails = () => {
                       </ul>
                       
                       <div className="mt-6">
-                        <Link to={`/hotel/${hotel.id}/rooms`}>
+                        <Link to="#rooms">
                           <Button className="w-full bg-waterfall-600 hover:bg-waterfall-700 text-white">
                             View Rooms & Book
                           </Button>

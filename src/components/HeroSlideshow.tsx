@@ -19,7 +19,7 @@ interface SlideImage {
 // Prepare slideshow images with both defaults and images from public/ folder provided as window.heroSlides for demo
 const defaultSlides: SlideImage[] = [
   {
-    src: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=1920&q=80",
+    src: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=600&h=800",
     alt: "Waterfall view in mountains"
   },
   {
